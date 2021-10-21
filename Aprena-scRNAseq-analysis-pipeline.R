@@ -1,6 +1,17 @@
-## Aprena scRNAseq Analysis
+######===========================================######
+#### Aprena scRNAseq Analysis
+######===========================================######
 
-## libraries 
+##############################################
+#### QUICK REFERENCE
+##############################################
+# Seurat Commands: https://satijalab.org/seurat/articles/essential_commands.html
+# Harmony Integration: https://satijalab.org/signac/0.2/articles/integration.html
+
+
+##############################################
+#### LOAD LIBRARIES 
+##############################################
 library(Seurat)
 library(harmony)
 library(dplyr)
@@ -57,7 +68,9 @@ sessionInfo()
 datadir <- "/Volumes/blue/ferrallm/ferrallm/Moffitt-CICPT-3181-Sallman-Amy-10x"
 outdir <- paste(datadir,"/analysis",sep="")
 
-## IMPORT INDIVIDUAL SAMPLES
+##############################################
+#### IMPORT INDIVIDUAL SAMPLES
+##############################################
 S1.data <- Read10X(data.dir=paste(datadir,"/S1_ACR_001_005_SCR_v2/outs/filtered_feature_bc_matrix/",sep=""))
 S1 <- CreateSeuratObject(counts=S1.data)
 Idents(object=S1) <- "S1"
@@ -270,11 +283,46 @@ saveRDS(aprenaCohort, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postPCA_2021-
 
 ############ TO DO
 ### follow back up with JackStraw analysis
-#<------------------------------------------- HERE
+
 ##############################################
 #### Harmony to remove batch effects
 ##############################################
 aprenaCohort <- RunHarmony(aprenaCohort, group.by.vars="Tx")
+
+# Harmony 1/10
+# 0%   10   20   30   40   50   60   70   80   90   100%
+#   [----|----|----|----|----|----|----|----|----|----|
+#      **************************************************|
+#      Harmony 2/10
+#    0%   10   20   30   40   50   60   70   80   90   100%
+#      [----|----|----|----|----|----|----|----|----|----|
+#         **************************************************|
+#         Harmony 3/10
+#       0%   10   20   30   40   50   60   70   80   90   100%
+#         [----|----|----|----|----|----|----|----|----|----|
+#            **************************************************|
+#            Harmony 4/10
+#          0%   10   20   30   40   50   60   70   80   90   100%
+#            [----|----|----|----|----|----|----|----|----|----|
+#               **************************************************|
+#               Harmony 5/10
+#             0%   10   20   30   40   50   60   70   80   90   100%
+#               [----|----|----|----|----|----|----|----|----|----|
+#                  **************************************************|
+#                  Harmony 6/10
+#                0%   10   20   30   40   50   60   70   80   90   100%
+#                  [----|----|----|----|----|----|----|----|----|----|
+#                     **************************************************|
+#                     Harmony 7/10
+#                   0%   10   20   30   40   50   60   70   80   90   100%
+#                     [----|----|----|----|----|----|----|----|----|----|
+#                        **************************************************|
+#                        Harmony 8/10
+#                      0%   10   20   30   40   50   60   70   80   90   100%
+#                        [----|----|----|----|----|----|----|----|----|----|
+#                           **************************************************|
+#                           Harmony converged after 8 iterations
+#                         Warning: Invalid name supplied, making object name syntactically valid. New object name is Seurat..ProjectDim.RNA.harmony; see ?make.names for more details on syntax validity
 
 saveRDS(aprenaCohort, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony_2021-10-21.rds",sep=""))
 
@@ -285,8 +333,32 @@ aprenaCohort <- FindNeighbors(aprenaCohort, dims = 1:30)
 aprenaCohort <- FindClusters(aprenaCohort, resolution = 0.8, verbose = FALSE)
 aprenaCohort <- RunUMAP(aprenaCohort, dims = 1:30)
 
-saveRDS(aprenaCohort, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony+Clustering+UMAP_2021-10-21.rds",sep=""))
+# Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
+# To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
+# This message will be shown once per session
+# 17:01:32 UMAP embedding parameters a = 0.9922 b = 1.112
+# 17:01:32 Read 106751 rows and found 30 numeric columns
+# 17:01:32 Using Annoy for neighbor search, n_neighbors = 30
+# 17:01:32 Building Annoy index with metric = cosine, n_trees = 50
+# 0%   10   20   30   40   50   60   70   80   90   100%
+#   [----|----|----|----|----|----|----|----|----|----|
+#      **************************************************|
+#      17:01:41 Writing NN index file to temp file /var/folders/hb/_pjzcr2n6ds4dpjtd4fxckp41d_t7x/T//RtmpUdXr8O/file22511a45a968
+#    17:01:41 Searching Annoy index using 1 thread, search_k = 3000
+#    17:02:09 Annoy recall = 100%
+#    17:02:10 Commencing smooth kNN distance calibration using 1 thread
+#    17:02:14 Initializing from normalized Laplacian + noise
+#    17:02:25 Commencing optimization for 200 epochs, with 4951980 positive edges
+#    0%   10   20   30   40   50   60   70   80   90   100%
+#      [----|----|----|----|----|----|----|----|----|----|
+#         **************************************************|
+#         17:03:20 Optimization finished
+#       Warning message:
+#         In UseMethod("depth") :
+#         no applicable method for 'depth' applied to an object of class "NULL"
 
+saveRDS(aprenaCohort, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony+Clustering+UMAP_2021-10-21.rds",sep=""))
+ 
 ##############################################
 #### VISUALIZE DATA
 ##############################################
@@ -307,6 +379,72 @@ pdf(paste(outdir,'/UMAP_Group-by-TimePoint_seurat_pipeline_postHarmony_2021-10-2
   DimPlot(aprenaCohort, label = TRUE, group.by="timept")
 dev.off()
 
+
+##############################################
+#### IF HARMONY BY TIMEPOINT RATHER THAN TREATMENT
+##############################################
+aprenaCohortAlt <- readRDS(paste(outdir,"/Aprena-scRNAseq-loaded+merged-postPCA_2021-10-21.rds",sep=""))
+aprenaCohortAlt <- RunHarmony(aprenaCohortAlt, group.by.vars="timept")
+
+# Harmony 1/10
+# 0%   10   20   30   40   50   60   70   80   90   100%
+#   [----|----|----|----|----|----|----|----|----|----|
+#      **************************************************|
+#      Harmony 2/10
+#    0%   10   20   30   40   50   60   70   80   90   100%
+#      [----|----|----|----|----|----|----|----|----|----|
+#         **************************************************|
+#         Harmony 3/10
+#       0%   10   20   30   40   50   60   70   80   90   100%
+#         [----|----|----|----|----|----|----|----|----|----|
+#            **************************************************|
+#            Harmony converged after 3 iterations
+#          Warning: Invalid name supplied, making object name syntactically valid. New object name is Seurat..ProjectDim.RNA.harmony; see ?make.names for more details on syntax validity
+
+saveRDS(aprenaCohortAlt, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony_ALT-byTimept_2021-10-21.rds",sep=""))
+
+aprenaCohortAlt <- FindNeighbors(aprenaCohortAlt, dims = 1:30)
+aprenaCohortAlt <- FindClusters(aprenaCohortAlt, resolution = 0.8, verbose = FALSE)
+aprenaCohortAlt <- RunUMAP(aprenaCohortAlt, dims = 1:30)
+
+# 17:24:03 UMAP embedding parameters a = 0.9922 b = 1.112
+# 17:24:03 Read 106751 rows and found 30 numeric columns
+# 17:24:03 Using Annoy for neighbor search, n_neighbors = 30
+# 17:24:03 Building Annoy index with metric = cosine, n_trees = 50
+# 0%   10   20   30   40   50   60   70   80   90   100%
+#   [----|----|----|----|----|----|----|----|----|----|
+#      **************************************************|
+#      17:24:12 Writing NN index file to temp file /var/folders/hb/_pjzcr2n6ds4dpjtd4fxckp41d_t7x/T//RtmpUdXr8O/file2251ff08db0
+#    17:24:12 Searching Annoy index using 1 thread, search_k = 3000
+#    17:24:41 Annoy recall = 100%
+#    17:24:42 Commencing smooth kNN distance calibration using 1 thread
+#    17:24:46 Initializing from normalized Laplacian + noise
+#    17:24:58 Commencing optimization for 200 epochs, with 4951980 positive edges
+#    0%   10   20   30   40   50   60   70   80   90   100%
+#      [----|----|----|----|----|----|----|----|----|----|
+#         **************************************************|
+#         17:25:54 Optimization finished
+#       Warning message:
+#         In grid.Call.graphics(C_upviewport, as.integer(n)) :
+#         cannot pop the top-level viewport ('grid' and 'graphics' output mixed?)
+
+saveRDS(aprenaCohortAlt, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony+Clustering+UMAP_ALT-byTimept_2021-10-21.rds",sep=""))
+#<------------------------------------------- HERE
+pdf(paste(outdir,'/UMAP_Clusters_seurat_pipeline_postHarmony_ALT-byTimept_2021-10-21.pdf',sep=""))
+  DimPlot(aprenaCohortAlt, label = TRUE)
+dev.off()
+
+pdf(paste(outdir,'/UMAP_Group-by-Tx_seurat_pipeline_postHarmony_ALT-byTimept_2021-10-21.pdf',sep=""))
+  DimPlot(aprenaCohortAlt, label = TRUE, group.by="Tx")
+dev.off()
+
+pdf(paste(outdir,'/UMAP_Group-by-ResponderStatus_seurat_pipeline_postHarmony_ALT-byTimept_2021-10-21.pdf',sep=""))
+  DimPlot(aprenaCohortAlt, label = TRUE, group.by="Rsp")
+dev.off()
+
+pdf(paste(outdir,'/UMAP_Group-by-TimePoint_seurat_pipeline_postHarmony_ALT-byTimept_2021-10-21.pdf',sep=""))
+  DimPlot(aprenaCohortAlt, label = TRUE, group.by="timept")
+dev.off()
 
 ##############################################
 #### DIFFERNETIAL GENE EXPRESSION - BY CONDITIONS OF INTEREST
