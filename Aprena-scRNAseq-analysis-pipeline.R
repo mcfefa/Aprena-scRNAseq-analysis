@@ -51,7 +51,9 @@ sessionInfo()
 # [93] cluster_2.1.2         globals_0.14.0        fitdistrplus_1.1-6    ellipsis_0.3.2       
 # [97] ROCR_1.0-11    
 
-## define directories
+##############################################
+#### DEFINE DIRECTORIES
+##############################################
 datadir <- "/Volumes/blue/ferrallm/ferrallm/Moffitt-CICPT-3181-Sallman-Amy-10x"
 outdir <- paste(datadir,"/analysis",sep="")
 
@@ -140,7 +142,181 @@ S12$Tx <- 'combo'
 S12$Rsp <- 'nonresponder'
 S12$timept <- 0 
 
-### MERGING SAMPLES
+##############################################
+#### MERGING SAMPLES
+##############################################
+aprenaCohort <- merge(x=S1, y=list(S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12), add.cell.ids=c("S1","S2","S3","S4","S5","S6","S7","S8","S9","S10","S11","S12"))
+
+saveRDS(aprenaCohort, paste(outdir,"/Aprena-scRNAseq-loaded+merged-noQC_2021-10-21.rds",sep=""))
+
+##############################################
+#### QUALITY CONTROL
+##############################################
+aprenaCohort[["percent.mt"]] <- PercentageFeatureSet(aprenaCohort, pattern = "^MT-")
+VlnPlot(object=aprenaCohort, features="percent.mt")+geom_hline(yintercept = 25)
+
+summary(aprenaCohort@meta.data$percent.mt)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.000   5.289   9.243  17.346  19.920  97.655
+
+perMitCutoff <- 25
+
+pdf(paste(outdir,'/QC_Violin_PerMito-wCutoff_seurat_pipeline_preHarmony_2021-10-21.pdf',sep=""))
+  VlnPlot(object=aprenaCohort, features="percent.mt")+geom_hline(yintercept = perMitCutoff)
+dev.off()
+
+pdf(paste(outdir,'/QC_Violin_nFeat+nCount+PerMito_seurat_pipeline_preHarmony_2021-10-21.pdf',sep=""))
+  VlnPlot(aprenaCohort, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+dev.off()
+
+summary(aprenaCohort@meta.data$nFeature_RNA)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#   26     596    1307    1716    2131   10305 
+
+nFeatLowerN <- 200
+nFeatUpperN <- mean(aprenaCohort@meta.data$nFeature_RNA, na.rm=TRUE) + 2*sd(aprenaCohort@meta.data$nFeature_RNA, na.rm=TRUE) 
+# 4858.044
+
+pdf(paste(outdir,'/QC_Violin_nFeat-wCutoff_seurat_pipeline_preHarmony_2021-10-21.pdf',sep=""))
+  VlnPlot(object=aprenaCohort, features="nFeature_RNA")+geom_hline(yintercept = nFeatLowerN)+geom_hline(yintercept = nFeatUpperN)
+dev.off()
+
+dim(aprenaCohort)
+# [1]  36601 148986
+
+aprenaCohort <- subset(aprenaCohort, subset = nFeature_RNA > nFeatLowerN & nFeature_RNA < nFeatUpperN & percent.mt < perMitCutoff)
+
+dim(aprenaCohort)
+# [1]  36601 106751 (losst ~28% of cells with this filtering)
+
+saveRDS(aprenaCohort, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postQCsubset_2021-10-21.rds",sep=""))
+
+##############################################
+#### LOG NORMALIZE SAMPLES
+##############################################
+aprenaCohort <- NormalizeData(aprenaCohort, normalization.method = "LogNormalize", scale.factor = 10000)
+
+##############################################
+#### FIND VARIABLE FEATURES
+##############################################
+aprenaCohort <- FindVariableFeatures(aprenaCohort, selection.method = "vst", nfeatures = 2000)
+
+# Identify the 10 most highly variable genes and plot
+top10 <- head(VariableFeatures(aprenaCohort), 10)
+# plot variable features with and without labels
+plot1 <- VariableFeaturePlot(aprenaCohort)
+plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
+pdf(paste(outdir,'/HVG_Top10-labeled_seurat_pipeline_preHarmony_2021-10-21.pdf',sep=""))
+  plot2
+dev.off()
+
+##############################################
+#### SCALE DATA
+##############################################
+# (only use HVG), regressing out effects of nCountRNA and percent.mito
+aprenaCohort <- ScaleData(aprenaCohort, features = VariableFeatures(aprenaCohort), vars.to.regress = c("nCount_RNA","percent.mt"))
+
+##############################################
+#### DIMENSION REDUCTION: PCA
+##############################################
+aprenaCohort <- RunPCA(aprenaCohort, features = VariableFeatures(object = aprenaCohort))
+
+# PC_ 1 
+# Positive:  IFI30, CD68, CLEC7A, TYROBP, PLAUR, VIM, S100A11, BRI3, FCN1, PSAP 
+# CTSD, MAFB, FCER1G, COTL1, TIMP1, CXCL8, LGALS1, CEBPD, CTSS, SERPINA1 
+# NAMPT, LYZ, CST3, SAT1, C5AR1, RAB31, FTL, ATP2B1-AS1, CSTA, ANXA5 
+# Negative:  AHSP, SLC4A1, CA1, HBA1, HBD, HEMGN, ANK1, HBM, PRDX2, HMBS 
+# SPTA1, GYPA, GYPB, ALAS2, RHAG, FECH, SNCA, CA2, SOX6, OSBP2 
+# SLC2A1, UROD, SLC25A37, TLCD4, TFRC, GLRX5, NFIA, CENPF, ABCB10, SELENBP1 
+# PC_ 2 
+# Positive:  LTB, IL7R, IL32, GAS5, FKBP11, CCL5, TRBC1, BIRC3, ABLIM1, DUSP2 
+# CD27, SELENOM, CTSW, NKG7, KLRB1, SEC11C, JUN, CST7, CD79A, CD8A 
+# KLRD1, GZMA, MZB1, IL2RB, SSR4, ZBP1, GZMH, GNLY, SNHG7, CD79B 
+# Negative:  CD36, CA2, MKI67, GYPA, SPTA1, CENPF, RHAG, TFRC, HEMGN, HMBS 
+# ANK1, BLVRB, SLC4A1, NUSAP1, NFIA, TLCD4, SOX6, ABCB10, SLC25A37, UROD 
+# GYPB, ASPM, AHSP, TFDP1, H1F0, CPOX, TOP2A, PRC1, AQP1, CA1 
+# PC_ 3 
+# Positive:  HSP90AA1, SNHG29, STMN1, TUBA1B, DUT, H2AFZ, ATP5IF1, HSPD1, RANBP1, NUCB2 
+# IGFBP7, GSTP1, TIMM13, HSPE1, ATP5MC1, GAPDH, GIHCG, TMEM14C, SYNGR1, HIST1H4C 
+# TUBB, PCLAF, PPP1R14B, CDK6, TXN, MYB, NME1, CCT6A, PRSS57, IMPDH2 
+# Negative:  ALAS2, BPGM, TRIM58, IFIT1B, SLC4A1, TMCC2, SLC25A37, DCAF12, SNCA, CPEB4 
+# SELENBP1, XPO7, HBA1, HBM, TRAK2, LGALS3, SLC14A1, TNS1, OSBP2, SLC2A1 
+# ACSL6, HBD, AC100835.2, FECH, SOX6, TBCEL, TSPAN5, EPB42, SMOX, ARHGEF12 
+# PC_ 4 
+# Positive:  MNDA, MS4A6A, AC020656.1, LST1, AIF1, FGL2, LYZ, RNASE2, S100A4, TNFSF13B 
+# LGALS2, S100A8, AP1S2, CYBB, ADA2, CTSS, SAMHD1, RNASE6, MARCH1, HLA-DRA 
+# GSTP1, JAML, CLEC12A, KCTD12, GRN, HLA-DRB5, CSTA, S100A9, NCF2, FCN1 
+# Negative:  CXCL12, CCDC80, FSTL1, DCN, EPAS1, COL6A1, FN1, PLPP3, VCAM1, CDH11 
+# COL6A2, LUM, CP, IL1R1, CHL1, C1S, ANGPTL4, MGP, LEPR, FBN1 
+# CALD1, FRMD6, CFH, C11orf96, COL6A3, COL1A1, IGFBP4, C1R, TF, COL1A2 
+# PC_ 5 
+# Positive:  THBS1, MET, SDC2, PHLDA1, FTH1, UPP1, SERPINB2, C15orf48, ITGB8, SEMA6B 
+# CCL7, CXCL3, AQP9, CXCL2, CD109, CXCL16, PLIN2, NINJ1, G0S2, CXCL8 
+# IFITM10, IRAK1, FNIP2, NEU4, FABP5, JARID2, ITGAX, CCL5, GAPDH, NR4A3 
+# Negative:  MNDA, VCAN, MS4A6A, FGL2, MARCH1, TNFSF13B, LGALS2, AC020656.1, RNASE2, KCTD12 
+# CD302, ADA2, CYBB, RNASE6, CLEC12A, HLA-DRA, LST1, AIF1, HLA-DRB5, JAML 
+# HLA-DMB, AP1S2, TRIM58, DPYSL2, ALDH2, CTSS, S100A8, HLA-DRB1, TMEM176B, GRN 
+
+pdf(paste(outdir,'/PCA_seurat_pipeline_preHarmony_2021-10-21.pdf',sep=""))
+  DimPlot(aprenaCohort, reduction = "pca", pt.size = 0.0001)
+dev.off()
+
+# Determine dimensionality of dataset
+pdf(paste(outdir,'/PCA_Elbow-Plot_seurat_pipeline_preHarmony_2021-10-21.pdf',sep=""))
+  ElbowPlot(aprenaCohort, ndims = 50)
+dev.off()
+
+saveRDS(aprenaCohort, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postPCA_2021-10-21.rds",sep=""))
+
+############ TO DO
+### follow back up with JackStraw analysis
+#<------------------------------------------- HERE
+##############################################
+#### Harmony to remove batch effects
+##############################################
+aprenaCohort <- RunHarmony(aprenaCohort, group.by.vars="Tx")
+
+saveRDS(aprenaCohort, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony_2021-10-21.rds",sep=""))
+
+##############################################
+#### Find Neighbors, Cluster and Visualize with UMAP & Seurat Defaults
+##############################################
+aprenaCohort <- FindNeighbors(aprenaCohort, dims = 1:30)
+aprenaCohort <- FindClusters(aprenaCohort, resolution = 0.8, verbose = FALSE)
+aprenaCohort <- RunUMAP(aprenaCohort, dims = 1:30)
+
+saveRDS(aprenaCohort, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony+Clustering+UMAP_2021-10-21.rds",sep=""))
+
+##############################################
+#### VISUALIZE DATA
+##############################################
+
+pdf(paste(outdir,'/UMAP_Clusters_seurat_pipeline_postHarmony_2021-10-21.pdf',sep=""))
+  DimPlot(aprenaCohort, label = TRUE)
+dev.off()
+
+pdf(paste(outdir,'/UMAP_Group-by-Tx_seurat_pipeline_postHarmony_2021-10-21.pdf',sep=""))
+  DimPlot(aprenaCohort, label = TRUE, group.by="Tx")
+dev.off()
+
+pdf(paste(outdir,'/UMAP_Group-by-ResponderStatus_seurat_pipeline_postHarmony_2021-10-21.pdf',sep=""))
+  DimPlot(aprenaCohort, label = TRUE, group.by="Rsp")
+dev.off()
+
+pdf(paste(outdir,'/UMAP_Group-by-TimePoint_seurat_pipeline_postHarmony_2021-10-21.pdf',sep=""))
+  DimPlot(aprenaCohort, label = TRUE, group.by="timept")
+dev.off()
+
+
+##############################################
+#### DIFFERNETIAL GENE EXPRESSION - BY CONDITIONS OF INTEREST
+##############################################
+
+
+##############################################
+#### EXPORT DATA FOR DIVERSITY ANALYSIS
+##############################################
+
 
 
 
