@@ -446,7 +446,7 @@ pdf(paste(outdir,'/UMAP_Group-by-TimePoint_seurat_pipeline_postHarmony_ALT-byTim
   DimPlot(aprenaCohortAlt, label = TRUE, group.by="timept")
 dev.off()
 
-#<------------------------------------------- HERE
+
 ##############################################
 #### EXPORT DATA FOR DIVERSITY ANALYSIS
 ##############################################
@@ -467,7 +467,7 @@ divout <- paste(outdir,"/CellBreakdown_PerClusterPerType_res",res,date,".csv", s
 cat(aprenaCohortAlt@meta.data$RNA_snn_res.0.8, file=file2, sep=",\n")
 aprenaCohortAlt$res0p8 <- aprenaCohortAlt@meta.data$RNA_snn_res.0.8
 
-listNames <- aprenaCohortAlt@meta.data$orig.ident
+listNames <- aprenaCohortAlt@assay$RNA@Dimnames[2]
 write.table(data.frame(listNames),
             row.names=FALSE,
             col.names = FALSE, 
@@ -496,11 +496,56 @@ write.csv(A, file=divout)
 #### DIFFERNETIAL GENE EXPRESSION - BY CONDITIONS OF INTEREST
 ##############################################
 
+## rename samples with Patient IDs
+aprenaCohortAlt@meta.data$PatientID <- unlist(tstrsplit(rownames(aprenaCohortAlt@meta.data),"_")[1])
+unique(aprenaCohortAlt@meta.data$PatientID)
 
+## set PatientID as active.ident for grouping
+aprenaCohortAlt <- SetIdent(aprenaCohortAlt, value = aprenaCohortAlt@meta.data$PatientID)
 
+## group cells
+ctrls <- WhichCells(aprenaCohortAlt, idents = c("S1", "S2", "S3"))
+combo <- WhichCells(aprenaCohortAlt, idents = c("S4", "S5", "S6","S7","S8","S9","S10","S11","S12"))
 
+pdf(paste(outdir,"/UMAP_res0.8_Highlighted_Combo-Tx",date,".pdf",sep=""))
+dPlot <- DimPlot(aprenaCohortAlt, reduction="umap", cells.highlight=combo) + theme(legend.position = "none")
+print(dPlot)
+dev.off()
 
+ctrlvcombo.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = ctrls, ident.2 = combo)
+write.csv(ctrlvcombo.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Ctrl-vs-2-Combo_viaWilcoxonRankTest",date,".csv",sep=""))
 
+rspd <- WhichCells(aprenaCohortAlt, idents = c("S1", "S4", "S5", "S6","S7","S8"))
+nonrspd <- WhichCells(aprenaCohortAlt, idents = c("S2", "S3", "S10", "S11","S12"))
+
+pdf(paste(outdir,"/UMAP_res0.8_Highlighted_Responders",date,".pdf",sep=""))
+dPlot <- DimPlot(aprenaCohortAlt, reduction="umap", cells.highlight=rspd) + theme(legend.position = "none")
+print(dPlot)
+dev.off()
+
+RespVNonResp.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = nonrspd, ident.2 = rspd)
+write.csv(RespVNonResp.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Nonresp-vs-2-Responder_viaWilcoxonRankTest",date,".csv",sep=""))
+
+time0 <- WhichCells(aprenaCohortAlt, idents = c("S1", "S2", "S3", "S4", "S6","S8", "S10", "S11", "S12"))
+time1p <- WhichCells(aprenaCohortAlt, idents = c("S5", "S7", "S9"))
+
+pdf(paste(outdir,"/UMAP_res0.8_Highlighted_LaterTimePoint",date,".pdf",sep=""))
+dPlot <- DimPlot(aprenaCohortAlt, reduction="umap", cells.highlight=time1p) + theme(legend.position = "none")
+print(dPlot)
+dev.off()
+
+overtime.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = time0, ident.2 = time1p)
+write.csv(overtime.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-time-0-vs-2-later-time_viaWilcoxonRankTest",date,".csv",sep=""))
+#<------------------------------------------- HERE
+
+##############################################
+#### DIFFERNETIAL GENE EXPRESSION - BY CLUSTER
+##############################################
+
+## setting cluster assignment as active identity
+aprenaCohortAlt <- SetIdent(aprenaCohortAlt, value = aprenaCohortAlt$res0p8)
+
+clus0 <- WhichCells(aprenaCohortAlt, idents = c("0"))
 
 
 
