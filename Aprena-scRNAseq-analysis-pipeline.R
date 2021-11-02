@@ -200,7 +200,7 @@ dim(aprenaCohort)
 aprenaCohort <- subset(aprenaCohort, subset = nFeature_RNA > nFeatLowerN & nFeature_RNA < nFeatUpperN & percent.mt < perMitCutoff)
 
 dim(aprenaCohort)
-# [1]  36601 106751 (losst ~28% of cells with this filtering)
+# [1]  36601 106751 (lost ~28% of cells with this filtering)
 
 saveRDS(aprenaCohort, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postQCsubset_2021-10-21.rds",sep=""))
 
@@ -429,7 +429,7 @@ aprenaCohortAlt <- RunUMAP(aprenaCohortAlt, dims = 1:30)
 #         cannot pop the top-level viewport ('grid' and 'graphics' output mixed?)
 
 saveRDS(aprenaCohortAlt, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony+Clustering+UMAP_ALT-byTimept_2021-10-21.rds",sep=""))
-#<------------------------------------------- HERE
+
 pdf(paste(outdir,'/UMAP_Clusters_seurat_pipeline_postHarmony_ALT-byTimept_2021-10-21.pdf',sep=""))
   DimPlot(aprenaCohortAlt, label = TRUE)
 dev.off()
@@ -446,14 +446,58 @@ pdf(paste(outdir,'/UMAP_Group-by-TimePoint_seurat_pipeline_postHarmony_ALT-byTim
   DimPlot(aprenaCohortAlt, label = TRUE, group.by="timept")
 dev.off()
 
+#<------------------------------------------- HERE
+##############################################
+#### EXPORT DATA FOR DIVERSITY ANALYSIS
+##############################################
+
+datadir <- "/Volumes/blue/ferrallm/ferrallm/Moffitt-CICPT-3181-Sallman-Amy-10x"
+outdir <- paste(datadir,"/analysis",sep="")
+aprenaCohortAlt <- readRDS(paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony+Clustering+UMAP_ALT-byTimept_2021-10-21.rds",sep=""))
+
+library(data.table)
+
+date <- "_2021-11-02"
+res <- "0.8"
+
+file1 <- paste(outdir,"tmp1_names",res,date,".csv", sep="")
+file2 <- paste(outdir,"tmp2_data",res,date,".csv", sep="")
+divout <- paste(outdir,"/CellBreakdown_PerClusterPerType_res",res,date,".csv", sep="")
+
+cat(aprenaCohortAlt@meta.data$RNA_snn_res.0.8, file=file2, sep=",\n")
+aprenaCohortAlt$res0p8 <- aprenaCohortAlt@meta.data$RNA_snn_res.0.8
+
+listNames <- aprenaCohortAlt@meta.data$orig.ident
+write.table(data.frame(listNames),
+            row.names=FALSE,
+            col.names = FALSE, 
+            file = file1,
+            sep=",")
+
+mydat1 <- read.csv(file2)
+mydat2 <- read.csv(file1)
+fulldat <- cbind(mydat2[1],mydat1[1])
+fulltab <- as.data.table(fulldat)
+# name table columns
+names(fulltab)[1] <- paste("UMI")
+names(fulltab)[2] <- paste("cluster")
+# group data based on clusters
+group_by(fulltab, cluster)
+# create a table counting unqiue UMIs/cells per cluster
+tabPerClus <- fulltab %>% group_by(cluster) %>% count()
+type <- sub("\\_.*","",fulltab$UMI)
+fulltab <- cbind(fulltab, type)
+
+A <- fulltab %>% group_by(cluster) %>% count(type)
+write.csv(A, file=divout)
+
+
 ##############################################
 #### DIFFERNETIAL GENE EXPRESSION - BY CONDITIONS OF INTEREST
 ##############################################
 
 
-##############################################
-#### EXPORT DATA FOR DIVERSITY ANALYSIS
-##############################################
+
 
 
 
