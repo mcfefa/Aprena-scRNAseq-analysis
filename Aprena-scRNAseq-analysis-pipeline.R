@@ -457,7 +457,7 @@ aprenaCohortAlt <- readRDS(paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarm
 
 library(data.table)
 
-date <- "_2021-11-02"
+date <- "_2021-11-04"
 res <- "0.8"
 
 file1 <- paste(outdir,"tmp1_names",res,date,".csv", sep="")
@@ -467,7 +467,7 @@ divout <- paste(outdir,"/CellBreakdown_PerClusterPerType_res",res,date,".csv", s
 cat(aprenaCohortAlt@meta.data$RNA_snn_res.0.8, file=file2, sep=",\n")
 aprenaCohortAlt$res0p8 <- aprenaCohortAlt@meta.data$RNA_snn_res.0.8
 
-listNames <- aprenaCohortAlt@assay$RNA@Dimnames[2]
+listNames <- aprenaCohortAlt@assays$RNA@data@Dimnames[2]
 write.table(data.frame(listNames),
             row.names=FALSE,
             col.names = FALSE, 
