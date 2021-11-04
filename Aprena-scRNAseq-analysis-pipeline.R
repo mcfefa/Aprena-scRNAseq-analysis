@@ -651,6 +651,8 @@ clus2.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus2)
 # |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01h 29m 22s
 write.csv(clus2.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus2-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
+date <- "_2021-11-03"
+
 clus3.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus3)
 # |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01h 04m 05s
 write.csv(clus3.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus3-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
