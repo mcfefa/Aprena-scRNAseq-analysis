@@ -551,28 +551,42 @@ aprenaCohortAlt <- SetIdent(aprenaCohortAlt, value = aprenaCohortAlt@meta.data$P
 ctrlRspd <- WhichCells(aprenaCohortAlt, idents = c("S1"))
 ctrlNonrspd <- WhichCells(aprenaCohortAlt, idents = c("S2", "S3"))
 ctrl.RvNR.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = ctrlNonrspd, ident.2 = ctrlRspd)
+# For a more efficient implementation of the Wilcoxon Rank Sum Test,
+# (default method for FindMarkers) please install the limma package
+# --------------------------------------------
+#   install.packages('BiocManager')
+# BiocManager::install('limma')
+# --------------------------------------------
+#   After installation of limma, Seurat will automatically use the more 
+# efficient implementation (no further action necessary).
+# This message will be shown once per session
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=02m 44s
 write.csv(ctrl.RvNR.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_Ctrl-1-Nonresp-vs-2-Resp_viaWilcoxonRankTest",date,".csv",sep=""))
 
 ## combo, resp vs non-responder
 comboRspd <- WhichCells(aprenaCohortAlt, idents = c("S4","S5","S6","S7","S8","S9"))
 comboNonrspd <- WhichCells(aprenaCohortAlt, idents = c("S10", "S11", "S12"))
 combo.RvNR.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = comboNonrspd, ident.2 = comboRspd)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=08m 25s
 write.csv(combo.RvNR.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_Combo-1-Nonresp-vs-2-Resp_viaWilcoxonRankTest",date,".csv",sep=""))
 
 ## early versus late time point for a given individual
 CCR002019early <- WhichCells(aprenaCohortAlt, idents = c("S6"))
 CCR002019late <- WhichCells(aprenaCohortAlt, idents = c("S7"))
 CCR002019.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = CCR002019early, ident.2 = CCR002019late)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01m 31s
 write.csv(CCR002019.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_C-CR_002-019-1-time0-vs-2-later-time_viaWilcoxonRankTest",date,".csv",sep=""))
 
 CCR333136early <- WhichCells(aprenaCohortAlt, idents = c("S8"))
 CCR333136late <- WhichCells(aprenaCohortAlt, idents = c("S9"))
 CCR333136.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = CCR333136early, ident.2 = CCR333136late)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=02m 02s
 write.csv(CCR333136.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_C-CR_333-136-1-time0-vs-2-later-time_viaWilcoxonRankTest",date,".csv",sep=""))
 
 CCR001008early <- WhichCells(aprenaCohortAlt, idents = c("S4"))
 CCR001008late <- WhichCells(aprenaCohortAlt, idents = c("S5"))
 CCR001008.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = CCR001008early, ident.2 = CCR001008late)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=07m 22s
 write.csv(CCR001008.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_C-CR_001-008-1-time0-vs-2-later-time_viaWilcoxonRankTest",date,".csv",sep=""))
 
 
@@ -634,115 +648,152 @@ clus1.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus1)
 write.csv(clus1.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus1-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus2.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus2)
-# 
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01h 29m 22s
 write.csv(clus2.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus2-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
-#<------------------------------------------- HERE
+
 clus3.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus3)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01h 04m 05s
 write.csv(clus3.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus3-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus4.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus4)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=29m 33s
 write.csv(clus4.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus4-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus5.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus5)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=29m 45s
 write.csv(clus5.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus5-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus6.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus6)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=41m 12s
 write.csv(clus6.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus6-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus7.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus7)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=53m 07s
 write.csv(clus7.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus7-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus8.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus8)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=44m 54s
 write.csv(clus8.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus8-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus9.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus9)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=40m 34s
 write.csv(clus9.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus9-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus10.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus10)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=39m 07s
 write.csv(clus10.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus10-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus11.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus11)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=23m 56s
 write.csv(clus11.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus11-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus12.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus12)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=24m 05s
 write.csv(clus12.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus12-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus13.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus13)
+#|++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=27m 35s
 write.csv(clus13.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus13-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus14.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus14)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=21m 17s
 write.csv(clus14.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus14-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus15.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus15)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01h 20m 50s
 write.csv(clus15.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus15-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus16.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus16)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=34m 53s
 write.csv(clus16.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus16-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus17.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus17)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=32m 53s
 write.csv(clus17.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus17-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus18.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus18)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=26m 57s
 write.csv(clus18.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus18-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus19.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus19)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=33m 26s
 write.csv(clus19.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus19-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus20.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus20)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=44m 36s
 write.csv(clus20.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus20-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus21.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus21)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=22m 59s
 write.csv(clus21.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus21-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus22.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus22)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=29m 17s
 write.csv(clus22.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus22-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus23.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus23)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=30m 12s
 write.csv(clus23.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus23-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus24.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus24)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=26m 04s
 write.csv(clus24.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus24-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus25.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus25)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=26m 06s
 write.csv(clus25.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus25-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
+date <- "_2021-11-04"
+
 clus26.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus26)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=46m 41s
 write.csv(clus26.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus26-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus27.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus27)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=27m 12s
 write.csv(clus27.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus27-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus28.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus28)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=16m 32s
 write.csv(clus28.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus28-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus29.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus29)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=34m 11s
 write.csv(clus29.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus29-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus30.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus30)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=32m 39s
 write.csv(clus30.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus30-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus31.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus31)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=29m 10s
 write.csv(clus31.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus31-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus32.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus32)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=33m 24s
 write.csv(clus32.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus32-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus33.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus33)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=40m 45s
 write.csv(clus33.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus33-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus34.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus34)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=42m 40s
 write.csv(clus34.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus34-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus35.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus35)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=44m 09s
 write.csv(clus35.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus35-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus36.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus36)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=16m 52s
 write.csv(clus36.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus36-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
 clus37.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus37)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=39m 53s
 write.csv(clus37.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus37-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
-
+#<------------------------------------------- HERE
 
 
 
