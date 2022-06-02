@@ -795,6 +795,74 @@ clus37.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = clus37)
 # |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=39m 53s
 write.csv(clus37.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_1-Clus37-vs-2-All-Others_viaWilcoxonRankTest",date,".csv",sep=""))
 
+
+##############################################
+#### FEATURE PLOTS AND GENE SCORES
+##############################################
+
+#datadir <- "/Volumes/blue/ferrallm/ferrallm/Moffitt-CICPT-3181-Sallman-Amy-10x"
+datadir <- "/Users/ferrallm/Dropbox (UFL)/collaborations/Moffitt/Aprea-scRNAseq"
+outdir <- paste(datadir,"/analysis",sep="")
+aprenaCohortAlt <- readRDS(paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony+Clustering+UMAP_ALT-byTimept_2021-10-21.rds",sep=""))
+
+## Features of Interest
+
+## NFS1
+featOfInt <- c("NFS1")
+pdf(paste(outdir,'/FeaturePlot_NFS1_2022-06-02.pdf',sep=""))
+  FeaturePlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+pdf(paste(outdir,'/RidgePlot_NFS1_2022-06-02.pdf',sep=""))
+  RidgePlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+pdf(paste(outdir,'/ViolinPlot_NFS1_2022-06-02.pdf',sep=""))
+VlnPlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+## NFE2L2
+featOfInt <- c("NFE2L2")
+pdf(paste(outdir,'/FeaturePlot_NFE2L2_2022-06-02.pdf',sep=""))
+FeaturePlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+pdf(paste(outdir,'/RidgePlot_NFE2L2_2022-06-02.pdf',sep=""))
+RidgePlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+pdf(paste(outdir,'/ViolinPlot_NFE2L2_2022-06-02.pdf',sep=""))
+VlnPlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+## XPO1
+featOfInt <- c("XPO1")
+pdf(paste(outdir,'/FeaturePlot_XPO1_2022-06-02.pdf',sep=""))
+FeaturePlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+pdf(paste(outdir,'/RidgePlot_XPO1_2022-06-02.pdf',sep=""))
+RidgePlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+pdf(paste(outdir,'/ViolinPlot_XPO1_2022-06-02.pdf',sep=""))
+VlnPlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+## ABCC1
+featOfInt <- c("ABCC1")
+pdf(paste(outdir,'/FeaturePlot_ABCC1_2022-06-02.pdf',sep=""))
+FeaturePlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+pdf(paste(outdir,'/RidgePlot_ABCC1_2022-06-02.pdf',sep=""))
+RidgePlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
+pdf(paste(outdir,'/ViolinPlot_ABCC1_2022-06-02.pdf',sep=""))
+VlnPlot(aprenaCohortAlt, features=featOfInt)
+dev.off()
+
 #<------------------------------------------- HERE
 
 
