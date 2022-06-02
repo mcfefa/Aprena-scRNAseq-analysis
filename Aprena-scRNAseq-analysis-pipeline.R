@@ -570,6 +570,16 @@ combo.RvNR.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = comboNonrspd, id
 # |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=08m 25s
 write.csv(combo.RvNR.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_Combo-1-Nonresp-vs-2-Resp_viaWilcoxonRankTest",date,".csv",sep=""))
 
+## combo, baseline, resp vs non-responder
+date <- "_2022-06-02"
+aprenaCohortAlt <- SetIdent(aprenaCohortAlt, value = aprenaCohortAlt@meta.data$PatientID)
+comboRspdB <- WhichCells(aprenaCohortAlt, idents = c("S4","S6","S8"))
+comboNonrspdB <- WhichCells(aprenaCohortAlt, idents = c("S10", "S11", "S12"))
+combo.RvNR.baseline.de.markers <- FindMarkers(aprenaCohortAlt, ident.1 = comboNonrspdB, ident.2 = comboRspdB)
+# |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=12m 01s
+write.csv(combo.RvNR.de.markers, paste(outdir,"/DiffExpGeneList_res0.8_Combo-Baseline-1-Nonresp-vs-2-Resp_viaWilcoxonRankTest",date,".csv",sep=""))
+
+
 ## early versus late time point for a given individual
 CCR002019early <- WhichCells(aprenaCohortAlt, idents = c("S6"))
 CCR002019late <- WhichCells(aprenaCohortAlt, idents = c("S7"))
