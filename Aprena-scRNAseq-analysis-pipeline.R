@@ -863,6 +863,47 @@ pdf(paste(outdir,'/ViolinPlot_ABCC1_2022-06-02.pdf',sep=""))
 VlnPlot(aprenaCohortAlt, features=featOfInt)
 dev.off()
 
+### Custom Gene Pathway Scores
+# Ferropotosis Pathway
+#     gene list from: DOI: 10.1186/s12885-021-08559-0
+ferropFeat <- list(c(
+  'CARS1',
+  'HMGCR',
+  'CHAC1',
+  'GOT1',
+  'CD44',
+  'STEAP3',
+  'AKR1C1',
+  'CBS',
+  'DPP4',
+  'FANCD2',
+  'SLC1A5',
+  'NCOA4'
+))
+# Warning: The following features are not present in the object: CARS1, not searching for symbol synonyms
+
+aprenaCohortAlt <- AddModuleScore(object=aprenaCohortAlt, features=ferropFeat, name="Ferropotosis_Score")
+
+pdf(paste(outdir,'/FeaturePlot_Ferropotosis-Score_2022-06-02.pdf',sep=""))
+FeaturePlot(aprenaCohortAlt, features=c("Ferropotosis_Score1"))
+dev.off()
+
+# Glutathione synthesis
+glutSynFeat <- list(c(
+  'SLC7A11',
+  'SHMT2',
+  'MTHFD1L',
+  'GCLC',
+  'GCLM'
+))
+# Warning: The following features are not present in the object: CARS1, not searching for symbol synonyms
+
+aprenaCohortAlt <- AddModuleScore(object=aprenaCohortAlt, features=glutSynFeat, name="Glutathione_Synthesis_Score")
+
+pdf(paste(outdir,'/FeaturePlot_Glutathione-Synthesis-Score_2022-06-02.pdf',sep=""))
+FeaturePlot(aprenaCohortAlt, features=c("Glutathione_Synthesis_Score1"))
+dev.off()
+
 #<------------------------------------------- HERE
 
 
