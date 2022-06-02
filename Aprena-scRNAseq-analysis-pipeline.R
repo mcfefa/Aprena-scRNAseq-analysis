@@ -968,7 +968,7 @@ write.csv(allCells.hpca, paste(outdir,'/allCellOutput_hcpa_2022-06-02.csv',sep="
 ## add meta data
 aprenaCohortAlt$singleR.hpca <- allCells.hpca$CellType
 
-#<------------------------------------------- HERE
+
 ## Reference 2: normal cell landscape for the myeloid arm of the hematopoietic system
 library(SummarizedExperiment)
 BiocManager::install("affyio")
@@ -1011,14 +1011,14 @@ for (i in 1:length(row.names(gse.mat))){
 row.names(gse.mat) <- outNames
 
 #Run singleR using this dataset as a reference
-pred.all.Rapin <- SingleR(test = data, ref = gse.mat, labels = gse@colData@listData[["source_name_ch1"]][1:16], BPPARAM = MulticoreParam(workers=4))
+pred.all.Rapin <- SingleR(test = data, ref = gse.mat, labels = gse@colData@listData[["source_name_ch1"]], BPPARAM = MulticoreParam(workers=4))
 
 #Save output as csv so we can re-load the cell type assignment at any time
 allCells.Rapin <- data.frame("Cell Name" = pred.all.Rapin@rownames, "Cell Type" = pred.all.Rapin@listData[["first.labels"]])
-write.csv(allCells.Rapin, paste(outdir,'/allCellOutput_Rapin_2022-06-02',sep=""), row.names = F)
+write.csv(allCells.Rapin, paste(outdir,'/allCellOutput_Rapin_2022-06-02.csv',sep=""), row.names = F)
 
-aprenaCohortAlt$singleR.Rapin <- allCells.Rapin$CellType
-
+aprenaCohortAlt$singleR.Rapin <- allCells.Rapin$Cell.Type
+#<------------------------------------------- HERE
 
 
 
