@@ -904,6 +904,36 @@ pdf(paste(outdir,'/FeaturePlot_Glutathione-Synthesis-Score_2022-06-02.pdf',sep="
 FeaturePlot(aprenaCohortAlt, features=c("Glutathione_Synthesis_Score1"))
 dev.off()
 
+##############################################
+#### EXPORT FOR OUTSIDE ANALYSIS IN GRAPHPAD
+##############################################
+c1 <- aprenaCohortAlt@meta.data$PatientID
+c2 <- aprenaCohortAlt@meta.data$Tx
+c3 <- aprenaCohortAlt@meta.data$timept
+c4 <- aprenaCohortAlt@meta.data$Rsp
+c5 <- aprenaCohortAlt@meta.data$Ferropotosis_Score1
+c6 <- aprenaCohortAlt@meta.data$Glutathione_Synthesis_Score1
+c7 <- aprenaCohortAlt@active.ident
+c8 <- aprenaCohortAlt@assays$RNA@data['NFS1',]
+c9 <- aprenaCohortAlt@assays$RNA@data['NFE2L2',]
+c10 <- aprenaCohortAlt@assays$RNA@data['XPO1',]
+c11 <- aprenaCohortAlt@assays$RNA@data['ABCC1',]
+
+df <- data.frame(PatientID = c1,
+                 Treatment = c2,
+                 TimePoint = c3,
+                 Response = c4,
+                 FerropScore = c5,
+                 GlutathScores = c6,
+                 Cluster = c7,
+                 NFS1 = c8,
+                 NFE2L2 = c9,
+                 XPO1 = c10,
+                 ABCC1 = c11
+)
+
+write.csv(df, paste(outdir,'/Genes+Pathways-of-Interest+MetaData_preSingleR_2022-06-02.csv',sep=""), row.names = F)
+
 
 ##############################################
 #### CELL TYPE IDENTIFICATION - singleR
@@ -933,7 +963,11 @@ data <- aprenaCohortAlt@assays[["RNA"]]@data
 pred.all.hpca <- SingleR(test = data, ref = hpca.se, labels = hpca.se$label.main)
 
 allCells.hpca <- data.frame("CellNames" = pred.all.hpca@rownames, "CellType" = pred.all.hpca@listData[["first.labels"]])
-write.csv(allCells.hpca, paste(outdir,'/allCellOutput_hcpa_2022-06-02',sep=""), row.names = F)
+write.csv(allCells.hpca, paste(outdir,'/allCellOutput_hcpa_2022-06-02.csv',sep=""), row.names = F)
+
+## add meta data
+aprenaCohortAlt$singleR.hpca <- allCells.hpca$CellType
+
 #<------------------------------------------- HERE
 ## Reference 2: normal cell landscape for the myeloid arm of the hematopoietic system
 library(SummarizedExperiment)
@@ -980,9 +1014,10 @@ row.names(gse.mat) <- outNames
 pred.all.Rapin <- SingleR(test = data, ref = gse.mat, labels = gse@colData@listData[["source_name_ch1"]][1:16], BPPARAM = MulticoreParam(workers=4))
 
 #Save output as csv so we can re-load the cell type assignment at any time
-out.csv <- data.frame("Cell Name" = pred.all.Rapin@rownames, "Cell Type" = pred.all.Rapin@listData[["first.labels"]])
-write.csv(out.csv, paste(outdir,'/allCellOutput_Rapin_2022-06-02',sep=""), row.names = F)
+allCells.Rapin <- data.frame("Cell Name" = pred.all.Rapin@rownames, "Cell Type" = pred.all.Rapin@listData[["first.labels"]])
+write.csv(allCells.Rapin, paste(outdir,'/allCellOutput_Rapin_2022-06-02',sep=""), row.names = F)
 
+aprenaCohortAlt$singleR.Rapin <- allCells.Rapin$CellType
 
 
 
