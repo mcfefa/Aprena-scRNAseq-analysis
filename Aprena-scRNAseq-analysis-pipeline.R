@@ -904,6 +904,29 @@ pdf(paste(outdir,'/FeaturePlot_Glutathione-Synthesis-Score_2022-06-02.pdf',sep="
 FeaturePlot(aprenaCohortAlt, features=c("Glutathione_Synthesis_Score1"))
 dev.off()
 
+
+##############################################
+#### CELL TYPE IDENTIFICATION - singleR
+##############################################
+
+# Installed via Bioconductor
+# https://bioconductor.org/packages/release/bioc/html/SingleR.html
+
+# Use Tutorial
+# https://bioconductor.org/packages/devel/bioc/vignettes/SingleR/inst/doc/SingleR.html
+
+library(BiocManager)
+BiocManager::install("SingleR")
+BiocManager::install(version='devel')
+BiocManager::install("celldex")
+
+library(celldex)
+hpca.se <- HumanPrimaryCellAtlasData()
+hpca.se
+
+library(SingleR)
+
+
 #<------------------------------------------- HERE
 
 
