@@ -914,21 +914,74 @@ dev.off()
 
 # Use Tutorial
 # https://bioconductor.org/packages/devel/bioc/vignettes/SingleR/inst/doc/SingleR.html
+# https://github.com/LTLA/SingleR/blob/master/README.md
+# http://bioconductor.org/books/release/SingleRBook/ 
 
 library(BiocManager)
 BiocManager::install("SingleR")
 BiocManager::install(version='devel')
 BiocManager::install("celldex")
 
+## Reference 1: Human Primary Cell Atlas (Mabbott et al. 2013)
 library(celldex)
 hpca.se <- HumanPrimaryCellAtlasData()
 hpca.se
 
 library(SingleR)
 
+data <- aprenaCohortAlt@assays[["RNA"]]@data
+pred.all.hpca <- SingleR(test = data, ref = hpca.se, labels = hpca.se$label.main)
 
+allCells.hpca <- data.frame("CellNames" = pred.all.hpca@rownames, "CellType" = pred.all.hpca@listData[["first.labels"]])
+write.csv(allCells.hpca, paste(outdir,'/allCellOutput_hcpa_2022-06-02',sep=""), row.names = F)
 #<------------------------------------------- HERE
+## Reference 2: normal cell landscape for the myeloid arm of the hematopoietic system
+library(SummarizedExperiment)
+BiocManager::install("affyio")
+library(affyio)
+BiocManager::install("GEOquery")
+library(GEOquery)
+BiocManager::install("biomaRt")
+library("biomaRt")
+library(BiocParallel)
+BiocManager::install("ArrayExpress")
+library(ArrayExpress)
 
+#Get dataset from GEO accession number
+gse = getGEO("GSE42519")[[1]]
+
+#Convert to "SummarizedExperiment" format
+gse = as(gse, "SummarizedExperiment")
+
+#Get expression matrix
+gse.mat <- gse@assays@data@listData[["exprs"]] 
+
+#Use biomaRt to convert from Affy to HGNC symbol to match our seurat object
+mart <- useMart("ENSEMBL_MART_ENSEMBL")
+mart <- useDataset("hsapiens_gene_ensembl",mart=mart)
+genes_affy <- row.names(gse.mat)
+#Run the getBM function to convert
+genes_symbol <- getBM(c("affy_hg_u133_plus_2", "hgnc_symbol"), c("affy_hg_u133_plus_2"), genes_affy, mart)
+
+# Now go from matched affy and hgnc to hgnc
+outNames <- c()
+for (i in 1:length(row.names(gse.mat))){
+  newName <- genes_symbol[genes_symbol$affy_hg_u133_plus_2 %in% row.names(gse.mat)[i],"hgnc_symbol"]
+  if(length(newName)>0){
+    outNames[i] <- newName
+  }else{
+    outNames[i] <- ""
+  }
+}
+#Set row names to be the HGNC symbols associated with the affy ID
+row.names(gse.mat) <- outNames
+
+#Run singleR using this dataset as a reference
+pred.all.Rapin <- SingleR(test = data, ref = gse.mat, labels = gse@colData@listData[["source_name_ch1"]][1:16], BPPARAM = MulticoreParam(workers=4))
+
+#Save output as csv so we can re-load the cell type assignment at any time
+out.csv <- data.frame("Cell Name" = pred.all.Rapin@rownames, "Cell Type" = pred.all.Rapin@listData[["first.labels"]])
+write.csv(out.csv, paste(outdir,'/allCellOutput_Rapin_2022-06-02',sep=""), row.names = F)
 
 
 
