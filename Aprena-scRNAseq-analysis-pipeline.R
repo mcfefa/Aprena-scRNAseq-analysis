@@ -898,6 +898,16 @@ pdf(paste(outdir,'/FeaturePlot_Ferropotosis-Score_2022-06-02.pdf',sep=""))
 FeaturePlot(aprenaCohortAlt, features=c("Ferropotosis_Score1"))
 dev.off()
 
+aprenaCohortAlt <- SetIdent(aprenaCohortAlt, value = aprenaCohortAlt@meta.data$seurat_clusters)
+
+pdf(paste(outdir,'/RidgePlot_Ferropotosis-Score_2022-06-02.pdf',sep=""))
+RidgePlot(aprenaCohortAlt, features=c("Ferropotosis_Score1"))
+dev.off()
+
+pdf(paste(outdir,'/ViolinPlot_Ferropotosis-Score_2022-06-02.pdf',sep=""))
+VlnPlot(aprenaCohortAlt, features=c("Ferropotosis_Score1"))
+dev.off()
+
 # Glutathione synthesis
 glutSynFeat <- list(c(
   'SLC7A11',
@@ -912,6 +922,14 @@ aprenaCohortAlt <- AddModuleScore(object=aprenaCohortAlt, features=glutSynFeat, 
 
 pdf(paste(outdir,'/FeaturePlot_Glutathione-Synthesis-Score_2022-06-02.pdf',sep=""))
 FeaturePlot(aprenaCohortAlt, features=c("Glutathione_Synthesis_Score1"))
+dev.off()
+
+pdf(paste(outdir,'/RidgePlot_Glutathione-Synthesis-Score_2022-06-02.pdf',sep=""))
+RidgePlot(aprenaCohortAlt, features=c("Glutathione_Synthesis_Score1"))
+dev.off()
+
+pdf(paste(outdir,'/ViolinPlot_Glutathione-Synthesis-Score_2022-06-02.pdf',sep=""))
+VlnPlot(aprenaCohortAlt, features=c("Glutathione_Synthesis_Score1"))
 dev.off()
 
 ##############################################
