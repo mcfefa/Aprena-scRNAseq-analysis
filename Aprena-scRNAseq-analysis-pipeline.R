@@ -1020,6 +1020,14 @@ write.csv(allCells.Rapin, paste(outdir,'/allCellOutput_Rapin_2022-06-02.csv',sep
 aprenaCohortAlt$singleR.Rapin <- allCells.Rapin$Cell.Type
 
 
+pdf(paste(outdir,'/UMAP_Group-by-singleR-Rapin_2022-06-02.pdf',sep=""))
+DimPlot(aprenaCohortAlt, group.by="singleR.Rapin")
+dev.off()
+
+pdf(paste(outdir,'/UMAP_Group-by-singleR-HPCA_2022-06-02.pdf',sep=""))
+DimPlot(aprenaCohortAlt, group.by="singleR.hpca")
+dev.off()
+
 ##############################################
 #### EXPORT (with type annotation) FOR OUTSIDE ANALYSIS IN GRAPHPAD
 ##############################################
