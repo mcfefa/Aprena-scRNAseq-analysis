@@ -1018,6 +1018,34 @@ allCells.Rapin <- data.frame("Cell Name" = pred.all.Rapin@rownames, "Cell Type" 
 write.csv(allCells.Rapin, paste(outdir,'/allCellOutput_Rapin_2022-06-02.csv',sep=""), row.names = F)
 
 aprenaCohortAlt$singleR.Rapin <- allCells.Rapin$Cell.Type
+
+
+##############################################
+#### EXPORT (with type annotation) FOR OUTSIDE ANALYSIS IN GRAPHPAD
+##############################################
+c12 <- aprenaCohortAlt$singleR.hpca
+c13 <- aprenaCohortAlt$singleR.Rapin
+  
+df <- data.frame(PatientID = c1,
+                 Treatment = c2,
+                 TimePoint = c3,
+                 Response = c4,
+                 FerropScore = c5,
+                 GlutathScores = c6,
+                 Cluster = c7,
+                 NFS1 = c8,
+                 NFE2L2 = c9,
+                 XPO1 = c10,
+                 ABCC1 = c11,
+                 HPCAannotation = c12,
+                 RapinAnnotation = c13
+)
+
+write.csv(df, paste(outdir,'/Genes+Pathways-of-Interest+MetaData+SingleR_2022-06-02.csv',sep=""), row.names = F)
+
+saveRDS(aprenaCohortAlt, paste(outdir,"/Aprena-scRNAseq-loaded+merged-postHarmony+Clus+UMAP+SingleR_ALT-byTimept_2022-06-02.rds",sep=""))
+
+
 #<------------------------------------------- HERE
 
 
